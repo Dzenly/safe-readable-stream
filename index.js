@@ -1,7 +1,7 @@
 'use strict';
 
 const stream = require('stream');
-const JSONStream = require('JSONStreamnpm ');
+const JSONStream = require('JSONStream');
 
 /* eslint-disable no-underscore-dangle */
 
@@ -15,11 +15,12 @@ const quotedErrorFieldName = `"${errorFieldName}"`;
  * @param {Object} logger - winston-like logger.
  * @return {Object} - Wrapper for stream.Readable.
  */
-exports.createOutputStream = function createOutputStream({ done, logger }) {
+exports.createOutputStream = function createOutputStream({ done, logger } = {}) {
   let _dataArr; // Array of data to be pushed to the stream.
   let _dataIndex; // Index of current array item to be pushed to the stream.
 
-  let _resolve; // Promise resolver. Also indicator that there is pending data and other pushes are forbidden.
+  // Promise resolver. Also indicator that there is pending data and other pushes are forbidden.
+  let _resolve = () => {};
   let _reject; // Promise 'rejecter'.
 
   function allowPush() {
@@ -38,12 +39,22 @@ exports.createOutputStream = function createOutputStream({ done, logger }) {
       return; // No pending data, so nothing to read.
     }
     if (_dataIndex === _dataArr.length) { // No more data.
-      allowPush();
+      if (process.env.RSTREAM_DEBUG) {
+        setTimeout(allowPush, 2000);
+      } else {
+        allowPush();
+      }
       return;
     }
 
-    // Will lead to call read() again.
-    this.push(_dataArr[_dataIndex++]); // eslint-disable-line no-plusplus
+    const data = _dataArr[_dataIndex++]; // eslint-disable-line no-plusplus
+    if (data === null) {
+      // TODO: should we add emit('end') ?
+      this.push(data);
+    } else {
+      // Will lead to call read() again.
+      this.push(data);
+    }
   }
 
   const _outStream = new stream.Readable({
@@ -56,7 +67,8 @@ exports.createOutputStream = function createOutputStream({ done, logger }) {
   }
   const outStream = {
     /**
-     * Returns node.js stream.Readable(). So you can subscribe on some events.
+     * Returns node.js stream.Readable().
+     * So you can subscribe on some events or pipe it somewhere.
      * But please don't use outStream.getStream.push() directly,
      * because node.js docs forbide it, and you will need to track its result.
      * @return {stream.Readable}
@@ -73,10 +85,6 @@ exports.createOutputStream = function createOutputStream({ done, logger }) {
     push(data) {
       if (typeof data === 'undefined') {
         return Promise.reject(new Error('Don`t push undefined.'));
-      }
-      if (data === null) {
-        this.finish();
-        return Promise.resolve();
       }
       return this.pushArray([data]);
     },
@@ -101,29 +109,28 @@ exports.createOutputStream = function createOutputStream({ done, logger }) {
         _dataIndex = 0;
         _resolve = resolve;
         _reject = reject;
-        read();
+        _outStream._read();
       }));
     },
 
+    /**
+     * Schedules to send null to the underlying stream.
+     * @return {*|Promise<undefined>}
+     */
     finish() {
-      // TODO: should we add emit('end') ?
-      _outStream.push(null);
+      return this.pushArray([null]);
     },
 
     /**
      * Sends the user error to the stream. Call stack is printed to logger, but is not send to the stream.
      * @param err
+     * * @return {*|Promise<undefined>}
      */
-    error(err = '') {
-      _outStream.push({[errorFieldName]: err.toString()});
-      this.finish();
-      if (_reject) {
-        _reject(err);
-      }
-      logger.error(`Error: ${err}. Stream is stopped.`);
-
+    async error(err = '') {
+      await this.pushArray([{ [errorFieldName]: err.toString() }, null]);
+      if (logger) logger.error(`Error: ${err}. Stream is stopped.`);
       if (err.stack) {
-        logger.error(err.stack);
+        if (logger) logger.error(err.stack);
       }
     },
   };
@@ -132,14 +139,12 @@ exports.createOutputStream = function createOutputStream({ done, logger }) {
   // E.g. getStream().push() without checking return value.
   // And maybe some inner strea.Readable errors.
   _outStream.on('error', (err) => {
-    logger.error(`on error: ${err}`);
+    if (logger) logger.error(`on error: ${err}`);
     outStream.error(err); // Событие 'error' обычно не отражается на работоспособности Readable.
   });
 
   return outStream;
 };
-
-
 
 /**
  * Looks up for user sent error in streamData.
@@ -148,11 +153,8 @@ exports.createOutputStream = function createOutputStream({ done, logger }) {
  */
 exports.checkErrorString = function checkErrorString(streamData) {
   if (streamData.byteLength > maxErrorMessageLength) {
-    // Objects can be very big, so.
-
-    // Если объект слишком большой, то это заведомо не сообщение об ошибке.
-    // Ибо нет смысла слать мегабайтовые ошибки из коллектора,
-    // ведь их можно прямо в коллекторе в лог распечатать.
+    // Skip check for apriori big objects.
+    // Because errors passed to another end should not be big.
     return null;
   }
 
@@ -166,4 +168,4 @@ exports.checkErrorString = function checkErrorString(streamData) {
   begin = str.indexOf('"', end + 1);
   end = str.lastIndexOf('"');
   return str.slice(begin + 1, end);
-}
+};
