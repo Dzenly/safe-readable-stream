@@ -1,7 +1,7 @@
 'use strict';
 
 const stream = require('stream');
-const JSONStream = require('JSONStream');
+const JSONStream = require('JSONStreamnpm ');
 
 /* eslint-disable no-underscore-dangle */
 
@@ -149,7 +149,7 @@ exports.createOutputStream = function createOutputStream({ done, logger }) {
 exports.checkErrorString = function checkErrorString(streamData) {
   if (streamData.byteLength > maxErrorMessageLength) {
     // Objects can be very big, so.
-    
+
     // Если объект слишком большой, то это заведомо не сообщение об ошибке.
     // Ибо нет смысла слать мегабайтовые ошибки из коллектора,
     // ведь их можно прямо в коллекторе в лог распечатать.
