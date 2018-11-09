@@ -1,7 +1,7 @@
 'use strict';
 
 const rStream = require('../index');
-const logger = require('./logger')('Server: ');
+const logger = require('../__tia-tests__/logger')('Server: ');
 
 const outStream = rStream.createOutputStream({ logger });
 

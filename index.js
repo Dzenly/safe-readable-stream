@@ -16,14 +16,18 @@ const quotedErrorFieldName = `"${errorFieldName}"`;
  * @return {Object} - Wrapper for stream.Readable.
  */
 exports.createOutputStream = function createOutputStream({ done, logger } = {}) {
-  let _dataArr; // Array of data to be pushed to the stream.
-  let _dataIndex; // Index of current array item to be pushed to the stream.
+  let _ended = false;
+  let _closed = false;
+
+  let _dataArr = null; // Array of data to be pushed to the stream.
+  let _dataIndex = 0; // Index of current array item to be pushed to the stream.
 
   // Promise resolver. Also indicator that there is pending data and other pushes are forbidden.
-  let _resolve = () => {};
+  let _resolve = null;
+
   let _reject; // Promise 'rejecter'.
 
-  function allowPush() {
+  function prodAllowPush() {
     _reject = null;
     _dataArr = null;
     _dataIndex = 0;
@@ -32,29 +36,24 @@ exports.createOutputStream = function createOutputStream({ done, logger } = {}) 
     _tmpResolve();
   }
 
-  allowPush();
+  function debugAllowPush() {
+    setTimeout(prodAllowPush, 100);
+  }
+
+  const allowPush = process.env.RSTREAM_DEBUG ? debugAllowPush : prodAllowPush;
 
   function read() { // We deliberately don't use the 'size' argument.
-    if (!_resolve) {
+    if (!_dataArr) {
       return; // No pending data, so nothing to read.
     }
     if (_dataIndex === _dataArr.length) { // No more data.
-      if (process.env.RSTREAM_DEBUG) {
-        setTimeout(allowPush, 2000);
-      } else {
-        allowPush();
-      }
-      return;
+      return allowPush();
     }
 
     const data = _dataArr[_dataIndex++]; // eslint-disable-line no-plusplus
-    if (data === null) {
-      // TODO: should we add emit('end') ?
-      this.push(data);
-    } else {
-      // Will lead to call read() again.
-      this.push(data);
-    }
+
+    // Will lead to call read() again if not null.
+    this.push(data);
   }
 
   const _outStream = new stream.Readable({
@@ -62,9 +61,26 @@ exports.createOutputStream = function createOutputStream({ done, logger } = {}) 
     read,
   });
 
+  _outStream.on('end', () => {
+    if (logger) {
+      logger.verbose('on end');
+    }
+    _ended = true;
+    allowPush(); // If there was 'end' event, the read callback will not be called.
+  });
+
+  _outStream.on('close', () => {
+    if (logger) {
+      logger.verbose('on close');
+    }
+    _closed = true;
+    allowPush(); // If there was 'close' event, the read callback will not be called.
+  });
+
   if (done) {
     done(null, _outStream.pipe(JSONStream.stringify()));
   }
+
   const outStream = {
     /**
      * Returns node.js stream.Readable().
@@ -99,6 +115,12 @@ exports.createOutputStream = function createOutputStream({ done, logger } = {}) 
     pushArray(dataArr) {
       if (_resolve) {
         return Promise.reject(new Error('You must wait for promise returned from push* functions.'));
+      }
+      if (_ended) {
+        return Promise.reject(new Error('Stream ended.'));
+      }
+      if (_closed) {
+        return Promise.reject(new Error('Stream closed.'));
       }
       if (!dataArr.length) {
         return Promise.reject(new Error('You can not push empty array.'));
@@ -137,10 +159,15 @@ exports.createOutputStream = function createOutputStream({ done, logger } = {}) 
 
   // Such an error can be at wrong outStream usage.
   // E.g. getStream().push() without checking return value.
+  // Or push data after the 'end' event.
   // And maybe some inner strea.Readable errors.
-  _outStream.on('error', (err) => {
+  _outStream.on('error', async (err) => {
     if (logger) logger.error(`on error: ${err}`);
-    outStream.error(err); // Событие 'error' обычно не отражается на работоспособности Readable.
+    if (_reject) {
+      _reject(err);
+    }
+    _outStream.push({ [errorFieldName]: err.toString() });
+    _outStream.push(null);
   });
 
   return outStream;
