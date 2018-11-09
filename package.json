@@ -1,0 +1,26 @@
+{
+  "name": "r-stream",
+  "version": "0.0.1",
+  "description": "Wrapper for reliable work for stream.Readable",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Dzenly/r-stream.git"
+  },
+  "keywords": [
+    "stream",
+    "Readable",
+    "push",
+    "Promise",
+    "reliable"
+  ],
+  "author": "Dzenly",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Dzenly/r-stream/issues"
+  },
+  "homepage": "https://github.com/Dzenly/r-stream#readme"
+}
