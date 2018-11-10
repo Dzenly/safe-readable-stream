@@ -1,0 +1,30 @@
+=================
+Title: Good waits, object mode, no done()
+"A\n"
+"B"
+{
+  "a": "a",
+  "b": 18
+}
+"C"
+"D"
+"E"
+{
+  "a": "a",
+  "b": 18
+}
+{
+  "c": "a",
+  "d": 18
+}
+{
+  "e": "a",
+  "f": 18
+}
+"F"
+""
+info: [GT] r-stream: push returned false, data is null: true
+End Event.
+verbose: [GT] r-stream: on end
+=================
+Pass: 0, Fail: 0

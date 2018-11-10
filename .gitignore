@@ -95,3 +95,6 @@ ext-log.log
 *.procInfo
 
 package-lock.json
+
+coverage/
+coverage*.json

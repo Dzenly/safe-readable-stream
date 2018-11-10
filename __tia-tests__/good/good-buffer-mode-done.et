@@ -1,0 +1,39 @@
+=================
+Title: Good waits, object mode, done()
+OK: first parameter for done(): null
+{
+  "type": "Buffer",
+  "data": [
+    65,
+    10
+  ]
+}
+{
+  "type": "Buffer",
+  "data": [
+    66
+  ]
+}
+{
+  "type": "Buffer",
+  "data": [
+    67
+  ]
+}
+{
+  "type": "Buffer",
+  "data": [
+    68
+  ]
+}
+{
+  "type": "Buffer",
+  "data": [
+    69
+  ]
+}
+info: [GT] r-stream: push returned false, data is null: true
+End Event.
+verbose: [GT] r-stream: on end
+=================
+Pass: 1, Fail: 0

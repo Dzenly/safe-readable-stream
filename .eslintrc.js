@@ -41,6 +41,9 @@ module.exports = {
     log: true,
     gT: true,
     gIn: true,
+    l: true,
+    t: true,
+    a: true,
   },
   env: {
     node: true,

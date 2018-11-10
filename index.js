@@ -5,9 +5,11 @@ const JSONStream = require('JSONStream');
 
 /* eslint-disable no-underscore-dangle */
 
-const maxErrorMessageLength = 600; // Just for fast
+const maxErrorMessageLength = 600; // Just for processing speed up.
 const errorFieldName = 'streamUtilsError';
 const quotedErrorFieldName = `"${errorFieldName}"`;
+
+const logPrefix = 'r-stream:';
 
 /**
  * Wraps the stream.Readable to allow safe pushing data into it.
@@ -15,7 +17,11 @@ const quotedErrorFieldName = `"${errorFieldName}"`;
  * @param {Object} logger - winston-like logger.
  * @return {Object} - Wrapper for stream.Readable.
  */
-exports.createOutputStream = function createOutputStream({ done, logger } = {}) {
+exports.createOutputStream = function createOutputStream({
+  logger,
+  objectMode = true,
+  done,
+} = {}) {
   let _ended = false;
   let _closed = false;
 
@@ -37,6 +43,7 @@ exports.createOutputStream = function createOutputStream({ done, logger } = {}) 
   }
 
   function debugAllowPush() {
+    _dataArr = null;
     setTimeout(prodAllowPush, 100);
   }
 
@@ -46,51 +53,63 @@ exports.createOutputStream = function createOutputStream({ done, logger } = {}) 
     if (!_dataArr) {
       return; // No pending data, so nothing to read.
     }
-    if (_dataIndex === _dataArr.length) { // No more data.
-      return allowPush();
+
+    while (true) {
+      if (_dataIndex === _dataArr.length) { // No more data.
+        return allowPush();
+      }
+
+      const data = _dataArr[_dataIndex++]; // eslint-disable-line no-plusplus
+
+      // Will lead to call read() again if not null.
+      if (!this.push(data)) {
+        if (logger) {
+          logger.info(`${logPrefix} push returned false, data is null: ${data === null}`);
+        }
+        return;
+      }
     }
-
-    const data = _dataArr[_dataIndex++]; // eslint-disable-line no-plusplus
-
-    // Will lead to call read() again if not null.
-    this.push(data);
   }
 
-  const _outStream = new stream.Readable({
-    objectMode: true,
+  const _rStream = new stream.Readable({
+    objectMode,
     read,
   });
 
-  _outStream.on('end', () => {
+  _rStream.on('end', () => {
     if (logger) {
-      logger.verbose('on end');
+      logger.verbose(`${logPrefix} on end`);
     }
     _ended = true;
     allowPush(); // If there was 'end' event, the read callback will not be called.
   });
 
-  _outStream.on('close', () => {
+  _rStream.on('close', () => {
     if (logger) {
-      logger.verbose('on close');
+      logger.verbose(`${logPrefix} on close`);
     }
     _closed = true;
     allowPush(); // If there was 'close' event, the read callback will not be called.
   });
 
   if (done) {
-    done(null, _outStream.pipe(JSONStream.stringify()));
+    if (objectMode) {
+      done(null, _rStream.pipe(JSONStream.stringify()));
+    } else {
+      done(null, _rStream);
+    }
   }
 
-  const outStream = {
+  const rStream = {
     /**
      * Returns node.js stream.Readable().
      * So you can subscribe on some events or pipe it somewhere.
-     * But please don't use outStream.getStream.push() directly,
+     * But please don't use rStream.getStream.push() directly,
      * because node.js docs forbide it, and you will need to track its result.
      * @return {stream.Readable}
      */
     getStream() {
-      return _outStream;
+      return _rStream;
     },
 
     /**
@@ -131,7 +150,7 @@ exports.createOutputStream = function createOutputStream({ done, logger } = {}) 
         _dataIndex = 0;
         _resolve = resolve;
         _reject = reject;
-        _outStream._read();
+        _rStream._read();
       }));
     },
 
@@ -150,27 +169,27 @@ exports.createOutputStream = function createOutputStream({ done, logger } = {}) 
      */
     async error(err = '') {
       await this.pushArray([{ [errorFieldName]: err.toString() }, null]);
-      if (logger) logger.error(`Error: ${err}. Stream is stopped.`);
+      if (logger) logger.error(`${logPrefix} Error: ${err}. Stream is stopped.`);
       if (err.stack) {
-        if (logger) logger.error(err.stack);
+        if (logger) logger.error(logPrefix, err.stack);
       }
     },
   };
 
-  // Such an error can be at wrong outStream usage.
+  // Such an error can be at wrong rStream usage.
   // E.g. getStream().push() without checking return value.
   // Or push data after the 'end' event.
   // And maybe some inner strea.Readable errors.
-  _outStream.on('error', async (err) => {
-    if (logger) logger.error(`on error: ${err}`);
+  _rStream.on('error', async (err) => {
+    if (logger) logger.error(`${logPrefix} on error: ${err}`);
     if (_reject) {
       _reject(err);
     }
-    _outStream.push({ [errorFieldName]: err.toString() });
-    _outStream.push(null);
+    _rStream.push({ [errorFieldName]: err.toString() });
+    _rStream.push(null);
   });
 
-  return outStream;
+  return rStream;
 };
 
 /**
@@ -180,7 +199,7 @@ exports.createOutputStream = function createOutputStream({ done, logger } = {}) 
  */
 exports.checkErrorString = function checkErrorString(streamData) {
   if (streamData.byteLength > maxErrorMessageLength) {
-    // Skip check for apriori big objects.
+    // Skip check for a priori big objects.
     // Because errors passed to another end should not be big.
     return null;
   }
