@@ -22,6 +22,7 @@ Title: Good waits, object mode, no done()
   "f": 18
 }
 "F"
+verbose: [GT] r-stream: data is empty string.
 ""
 info: [GT] r-stream: push returned false, data is null: true
 End Event.

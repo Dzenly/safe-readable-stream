@@ -17,7 +17,7 @@ const logPrefix = 'r-stream:';
  * @param {Object} logger - winston-like logger.
  * @return {Object} - Wrapper for stream.Readable.
  */
-exports.createOutputStream = function createOutputStream({
+exports.createSafeReadableStream = function createSafeReadableStream({
   logger,
   objectMode = true,
   done,
@@ -60,6 +60,9 @@ exports.createOutputStream = function createOutputStream({
       }
 
       const data = _dataArr[_dataIndex++]; // eslint-disable-line no-plusplus
+      if (logger && data === '') {
+        logger.verbose(`${logPrefix} data is empty string.`);
+      }
 
       // Will lead to call read() again if not null.
       if (!this.push(data)) {

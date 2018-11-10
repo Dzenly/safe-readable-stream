@@ -9,7 +9,7 @@ module.exports = async function test() {
 
   const rStream = require('../../index');
 
-  const outStream = rStream.createOutputStream();
+  const outStream = rStream.createSafeReadableStream();
 
   const funcsArr = [
     async () => {

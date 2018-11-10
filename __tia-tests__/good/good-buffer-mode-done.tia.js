@@ -13,7 +13,7 @@ module.exports = async function test({ t, l }, inner, a) {
 
   const rStream = require('../../index');
 
-  const outStream = rStream.createOutputStream({ logger, done, objectMode: false });
+  const outStream = rStream.createSafeReadableStream({ logger, done, objectMode: false });
 
   await outStream.push('A\n');
   await outStream.push('B');
@@ -21,6 +21,9 @@ module.exports = async function test({ t, l }, inner, a) {
   await outStream.pushArray([
     'D',
     'E',
+    '',
+    '',
+    'F',
   ]);
   await outStream.push('');
   await outStream.push(null);

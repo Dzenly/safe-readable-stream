@@ -3,7 +3,7 @@
 const rStream = require('../index');
 const logger = require('../__tia-tests__/logger')('Server: ');
 
-const outStream = rStream.createOutputStream({ logger });
+const outStream = rStream.createSafeReadableStream({ logger });
 
 async function test1() {
 

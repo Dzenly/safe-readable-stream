@@ -8,7 +8,7 @@ module.exports = async function test({ t, l }, inner, a) {
 
   const rStream = require('../../index');
 
-  const outStream = rStream.createOutputStream({ logger });
+  const outStream = rStream.createSafeReadableStream({ logger });
 
   streamUtils.streamToLog(outStream.getStream());
 
