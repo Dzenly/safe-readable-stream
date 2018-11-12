@@ -1,9 +1,12 @@
 ====================    Short Log BEGIN:    ====================
- "r-stream", dif: 0, fail: 0
+ "safe-readable-stream", dif: 0, fail: 0
 ====================    Short Log END.    ====================
 
 ====================    Verbose Log BEGIN:    ====================
- "r-stream", dif: 0, fail: 0, edif: 0, skip: 0, ""
-| "wait", dif: 0, fail: 0, edif: 0, skip: 0, ""
+ "safe-readable-stream", dif: 0, fail: 0, edif: 0, skip: 0, ""
+| "good", dif: 0, fail: 0, edif: 0, skip: 0, ""
+| | "good-buffer-mode-done.tia.js", OK, fail: 0, Pass: 1, "Good waits, object mode, done()"
+| | "good-object-mode-done-debug-env.tia.js", OK, fail: 0, Pass: 1, "Good waits, object mode, no done()"
+| | "good-object-mode-done.tia.js", OK, fail: 0, Pass: 1, "Good waits, object mode, no done()"
 | | "good-object-mode.tia.js", OK, fail: 0, pass: 0, "Good waits, object mode, no done()"
 ====================    Verbose Log END.    ====================

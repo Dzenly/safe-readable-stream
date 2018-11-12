@@ -1,0 +1,11 @@
+=================
+Title: Bad, no waits, object mode + null, done()
+OK: first parameter for done(): null
+EXC: Exception in runner:  Error: You must wait for promise returned from push* functions.
+
+{
+  a: 'a',
+  b: 18
+}
+=================
+Pass: 1, Fail: 1

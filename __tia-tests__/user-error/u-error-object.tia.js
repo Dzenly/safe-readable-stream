@@ -3,7 +3,7 @@
 const JSONStream = require('JSONStream');
 
 module.exports = async function test({ t, l }, inner, a) {
-  t.setTitle('Good waits, object mode, done, release');
+  t.setTitle('User error.');
 
   const rStream = require('../../index');
   const logger = gT.logUtils.winstonMock('[GT] ');
@@ -15,18 +15,14 @@ module.exports = async function test({ t, l }, inner, a) {
 
   const outStream = rStream.createSafeReadableStream({ logger, done });
 
-  await outStream.push('A\n');
-  await outStream.push('B');
+  outStream.getStream().on('data', (data) => {
+    const errStr = rStream.checkErrorString(data);
+    if (errStr) {
+      l.println(`Checked error string: ${errStr}`);
+    }
+  });
+
+  await outStream.push('A');
   await outStream.push({ a: 'a', b: 18 });
-  await outStream.push('C');
-  await outStream.pushArray([
-    'D',
-    'E',
-    { a: 'a', b: 18 },
-    { c: 'a', d: 18 },
-    { e: 'a', f: 18 },
-    'F',
-  ]);
-  await outStream.push('');
-  await outStream.push(null);
+  await outStream.error(new Error('My error'));
 };

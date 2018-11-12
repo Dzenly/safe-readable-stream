@@ -3,7 +3,9 @@
 const JSONStream = require('JSONStream');
 
 module.exports = async function test({ t, l }, inner, a) {
-  t.setTitle('Good waits, object mode, done, release');
+  t.setTitle('Good waits, object mode, done, debug ()');
+
+  process.env.SAFE_STREAM_DEBUG = 'yes';
 
   const rStream = require('../../index');
   const logger = gT.logUtils.winstonMock('[GT] ');

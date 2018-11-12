@@ -1,0 +1,22 @@
+=================
+Title: User error.
+OK: first parameter for done(): null
+[GT] info: safe-readable-stream: push returned false, data is null: true
+A
+{
+  a: 'a',
+  b: 18
+}
+{
+  safeReadableStreamError: 'Error: My error'
+}
+Checked error string: Error: My error
+[GT] verbose: safe-readable-stream: on end
+End Event.
+[GT] error: safe-readable-stream: Error: Error: My error. Stream is stopped.
+[GT] error: safe-readable-stream:
+Err stack: 
+Error: My error
+    at test (/home/alexey/projects/myGithub/node_modules1/safe-readable-stream/__tia-tests__/user-error/u-error-object.tia.js:27:25)
+=================
+Pass: 1, Fail: 0

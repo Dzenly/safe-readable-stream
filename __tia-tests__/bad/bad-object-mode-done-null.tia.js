@@ -3,7 +3,9 @@
 const JSONStream = require('JSONStream');
 
 module.exports = async function test({ t, l }, inner, a) {
-  t.setTitle('Good waits, object mode, done, release');
+  t.setTitle('Bad, no waits, object mode + null, done()');
+
+  process.env.SAFE_STREAM_DEBUG = 'yes';
 
   const rStream = require('../../index');
   const logger = gT.logUtils.winstonMock('[GT] ');
@@ -15,18 +17,7 @@ module.exports = async function test({ t, l }, inner, a) {
 
   const outStream = rStream.createSafeReadableStream({ logger, done });
 
-  await outStream.push('A\n');
-  await outStream.push('B');
-  await outStream.push({ a: 'a', b: 18 });
-  await outStream.push('C');
-  await outStream.pushArray([
-    'D',
-    'E',
-    { a: 'a', b: 18 },
-    { c: 'a', d: 18 },
-    { e: 'a', f: 18 },
-    'F',
-  ]);
-  await outStream.push('');
+  outStream.push({ a: 'a', b: 18 }); // Whoops, forgot await.
+  await outStream.error(new Error('My error'));
   await outStream.push(null);
 };

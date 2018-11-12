@@ -28,8 +28,6 @@
     "JSONStream": "1.3.5"
   },
   "devDependencies": {
-    "dz-log-prefix": "^0.3.5",
-    "tia": "^0.19.10",
-    "winston": "^3.1.0"
+    "tia": "^0.19.10"
   }
 }

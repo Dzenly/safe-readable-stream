@@ -1,7 +1,9 @@
 'use strict';
 
 module.exports = async function test({ t, l }, inner, a) {
-  t.setTitle('Good waits, buffer mode, done(), release');
+  t.setTitle('Bad, no waits, buffer mode, done()');
+
+  process.env.SAFE_STREAM_DEBUG = 'yes';
 
   const rStream = require('../../index');
   const logger = gT.logUtils.winstonMock('[GT] ');
@@ -13,20 +15,11 @@ module.exports = async function test({ t, l }, inner, a) {
 
   const outStream = rStream.createSafeReadableStream({
     logger,
+    objectMode: false,
     done,
-    objectMode: false
   });
 
-  await outStream.push('A\n');
-  await outStream.push('B');
-  await outStream.push('C');
-  await outStream.pushArray([
-    'D',
-    'E',
-    '',
-    '',
-    'F',
-  ]);
-  await outStream.push('');
+  outStream.push('My string'); // Whoops, forgot await.
+  await outStream.push('A');
   await outStream.push(null);
 };

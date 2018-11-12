@@ -6,10 +6,10 @@ const JSONStream = require('JSONStream');
 /* eslint-disable no-underscore-dangle */
 
 const maxErrorMessageLength = 600; // Just for processing speed up.
-const errorFieldName = 'streamUtilsError';
+const errorFieldName = 'safeReadableStreamError';
 const quotedErrorFieldName = `"${errorFieldName}"`;
 
-const logPrefix = 'r-stream:';
+const logPrefix = 'safe-readable-stream:';
 
 /**
  * Wraps the stream.Readable to allow safe pushing data into it.
@@ -44,10 +44,10 @@ exports.createSafeReadableStream = function createSafeReadableStream({
 
   function debugAllowPush() {
     _dataArr = null;
-    setTimeout(prodAllowPush, 100);
+    setTimeout(prodAllowPush, 50);
   }
 
-  const allowPush = process.env.RSTREAM_DEBUG ? debugAllowPush : prodAllowPush;
+  const allowPush = process.env.SAFE_STREAM_DEBUG ? debugAllowPush : prodAllowPush;
 
   function read() { // We deliberately don't use the 'size' argument.
     if (!_dataArr) {
@@ -67,7 +67,8 @@ exports.createSafeReadableStream = function createSafeReadableStream({
       // Will lead to call read() again if not null.
       if (!this.push(data)) {
         if (logger) {
-          logger.info(`${logPrefix} push returned false, data is null: ${data === null}`);
+          const msg = `${logPrefix} push returned false, data is null: ${data === null}`;
+          logger.info(msg);
         }
         return;
       }
@@ -103,11 +104,11 @@ exports.createSafeReadableStream = function createSafeReadableStream({
     }
   }
 
-  const rStream = {
+  const safeStream = {
     /**
      * Returns node.js stream.Readable().
      * So you can subscribe on some events or pipe it somewhere.
-     * But please don't use rStream.getStream.push() directly,
+     * But please don't use safeStream.getStream.push() directly,
      * because node.js docs forbide it, and you will need to track its result.
      * @return {stream.Readable}
      */
@@ -174,12 +175,12 @@ exports.createSafeReadableStream = function createSafeReadableStream({
       await this.pushArray([{ [errorFieldName]: err.toString() }, null]);
       if (logger) logger.error(`${logPrefix} Error: ${err}. Stream is stopped.`);
       if (err.stack) {
-        if (logger) logger.error(logPrefix, err.stack);
+        if (logger) logger.error(logPrefix, 'Err stack: ', err.stack);
       }
     },
   };
 
-  // Such an error can be at wrong rStream usage.
+  // Such an error can be at wrong safeStream usage.
   // E.g. getStream().push() without checking return value.
   // Or push data after the 'end' event.
   // And maybe some inner strea.Readable errors.
@@ -192,7 +193,7 @@ exports.createSafeReadableStream = function createSafeReadableStream({
     _rStream.push(null);
   });
 
-  return rStream;
+  return safeStream;
 };
 
 /**
@@ -207,7 +208,24 @@ exports.checkErrorString = function checkErrorString(streamData) {
     return null;
   }
 
-  const str = streamData.toString();
+  if (!streamData) {
+    return null;
+  }
+
+  if (typeof streamData === 'object') {
+    return streamData[errorFieldName];
+  }
+
+  let str;
+
+  if (Buffer.isBuffer(streamData)) {
+    str = streamData.toString('utf8');
+  } else if (typeof streamData === 'string') {
+    str = streamData;
+  } else {
+    return null;
+  }
+
   let begin = str.indexOf(quotedErrorFieldName);
   if (begin === -1) {
     return null;

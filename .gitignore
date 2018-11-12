@@ -98,3 +98,6 @@ package-lock.json
 
 coverage/
 coverage*.json
+
+*.dif.html
+*.plus.difs

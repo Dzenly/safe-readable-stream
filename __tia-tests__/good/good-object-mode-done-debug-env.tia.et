@@ -1,5 +1,6 @@
 =================
-Title: Good waits, object mode, no done, release ()
+Title: Good waits, object mode, done, debug ()
+OK: first parameter for done(): null
 A
 
 B
@@ -29,4 +30,4 @@ F
 [GT] verbose: safe-readable-stream: on end
 End Event.
 =================
-Pass: 0, Fail: 0
+Pass: 1, Fail: 0

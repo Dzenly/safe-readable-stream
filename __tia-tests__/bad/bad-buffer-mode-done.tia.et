@@ -1,0 +1,8 @@
+=================
+Title: Bad, no waits, buffer mode, done()
+OK: first parameter for done(): null
+My string
+EXC: Exception in runner:  Error: You must wait for promise returned from push* functions.
+
+=================
+Pass: 1, Fail: 1

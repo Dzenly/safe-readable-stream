@@ -1,5 +1,5 @@
 {
-  "name": "@dzenly/r-stream",
+  "name": "safe-readable-stream",
   "version": "0.0.2",
   "lockfileVersion": 1,
   "requires": true,

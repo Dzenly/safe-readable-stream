@@ -1,16 +1,14 @@
 'use strict';
 
-const streamUtils = require('../stream-utils');
-const logger = require('../logger')('[GT] ', gIn.logger.logFile);
-
 module.exports = async function test({ t, l }, inner, a) {
-  t.setTitle('Good waits, object mode, no done()');
+  t.setTitle('Good waits, object mode, no done, release ()');
 
   const rStream = require('../../index');
+  const logger = gT.logUtils.winstonMock('[GT] ');
 
   const outStream = rStream.createSafeReadableStream({ logger });
 
-  streamUtils.streamToLog(outStream.getStream());
+  gT.logUtils.rStreamToLog(outStream.getStream());
 
   await outStream.push('A\n');
   await outStream.push('B');
