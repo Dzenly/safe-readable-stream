@@ -28,5 +28,5 @@ module.exports = async function test({ t, l }, inner, a) {
     'F',
   ]);
   await outStream.push('');
-  await outStream.push(null);
+  await outStream.finish();
 };

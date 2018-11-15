@@ -1,5 +1,3 @@
-# r-stream
-
 Wrapper on Node.js `stream.Readable()`.
 
 ## Promise based work with `stream.Readable()` for safe pushing data into the stream.
