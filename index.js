@@ -6,10 +6,9 @@ const JSONStream = require('JSONStream');
 /* eslint-disable no-underscore-dangle */
 
 const maxErrorMessageLength = 600; // Just for processing speed up.
-const errorFieldName = 'safeReadableStreamError';
-const quotedErrorFieldName = `"${errorFieldName}"`;
-
 const logPrefix = 'safe-readable-stream:';
+
+exports.errorFieldName = 'safeReadableStreamError';
 
 /**
  * Wraps the stream.Readable to allow safe data pushing into it.
@@ -174,7 +173,7 @@ exports.createSafeReadableStream = function createSafeReadableStream({
      * * @return {Promise<undefined>}
      */
     async error(err = '') {
-      await this.pushArray([{ [errorFieldName]: err.toString() }, null]);
+      await this.pushArray([{ [exports.errorFieldName]: err.toString() }, null]);
       if (logger) logger.error(`${logPrefix} Error: ${err}. Stream is stopped.`);
       if (err.stack) {
         if (logger) logger.error(logPrefix, 'Err stack: ', err.stack);
@@ -191,7 +190,7 @@ exports.createSafeReadableStream = function createSafeReadableStream({
     if (_reject) {
       _reject(err);
     }
-    _rStream.push({ [errorFieldName]: err.toString() });
+    _rStream.push({ [exports.errorFieldName]: err.toString() });
     _rStream.push(null);
   });
 
@@ -201,9 +200,11 @@ exports.createSafeReadableStream = function createSafeReadableStream({
 /**
  * Looks up for user sent error (by `error(msg)`) in streamData.
  * @param {Buffer} streamData - Argument of handler of stream 'data' event.
+ * @param {String} errFieldName - If you wish to override default errorFieldName in user errors.
+ *
  * @return {String | null} - Error message or null.
  */
-exports.checkErrorString = function checkErrorString(streamData) {
+exports.checkErrorString = function checkErrorString(streamData, errFieldName = exports.errorFieldName) {
   if (streamData.byteLength > maxErrorMessageLength) {
     // Skip check for a priori big objects.
     // Because errors passed to another end should not be big.
@@ -215,7 +216,7 @@ exports.checkErrorString = function checkErrorString(streamData) {
   }
 
   if (typeof streamData === 'object') {
-    return streamData[errorFieldName];
+    return streamData[errFieldName];
   }
 
   let str;
@@ -227,6 +228,8 @@ exports.checkErrorString = function checkErrorString(streamData) {
   } else {
     return null;
   }
+
+  const quotedErrorFieldName = `"${errFieldName}"`;
 
   let begin = str.indexOf(quotedErrorFieldName);
   if (begin === -1) {
