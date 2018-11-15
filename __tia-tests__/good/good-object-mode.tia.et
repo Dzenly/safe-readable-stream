@@ -25,7 +25,6 @@ E
 F
 [GT] verbose: safe-readable-stream: data is empty string.
 
-[GT] info: safe-readable-stream: push returned false, data is null: true
 [GT] verbose: safe-readable-stream: on end
 End Event.
 =================

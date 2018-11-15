@@ -1,7 +1,6 @@
 =================
 Title: User error.
 OK: first parameter for done(): null
-[GT] info: safe-readable-stream: push returned false, data is null: true
 A
 {
   a: 'a',

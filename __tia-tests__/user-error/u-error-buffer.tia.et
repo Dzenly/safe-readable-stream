@@ -1,7 +1,6 @@
 =================
 Title: User error.
 OK: first parameter for done(): null
-[GT] info: safe-readable-stream: push returned false, data is null: true
 [
 "A"
 
@@ -21,9 +20,5 @@ End Event.
 Err stack: 
 Error: My error
     at test (/home/alexey/projects/myGithub/node_modules1/safe-readable-stream/__tia-tests__/user-error/u-error-buffer.tia.js:25:25)
-    at process._tickCallback (internal/process/next_tick.js:68:7)
-    at Function.Module.runMain (internal/modules/cjs/loader.js:744:11)
-    at startup (internal/bootstrap/node.js:285:19)
-    at bootstrapNodeJSCore (internal/bootstrap/node.js:739:3)
 =================
 Pass: 1, Fail: 0

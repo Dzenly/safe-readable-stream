@@ -14,18 +14,24 @@ exports.errorFieldName = 'safeReadableStreamError';
  * Wraps the stream.Readable to allow safe data pushing into it.
  * @param {Function ?} done - callback from HAPI.
  * @param {Object} logger - winston-like logger.
+ * @param {Number} [traceInterval = 100] - how often
+ * to do logger.verbose for pushed objects count.
+ * Say, if 10, then each 10-th push will be logged.
  * @return {Object} - Wrapper for stream.Readable.
  */
 exports.createSafeReadableStream = function createSafeReadableStream({
   logger,
   objectMode = true,
   done,
+  traceInterval = 100,
 } = {}) {
   let _ended = false;
   let _closed = false;
 
   let _dataArr = null; // Array of data to be pushed to the stream.
   let _dataIndex = 0; // Index of current array item to be pushed to the stream.
+
+  let _totalPushCnt = 0; // Count of the pushes to underlying stream.
 
   // Promise resolver. Also indicator that there is pending data and other pushes are forbidden.
   let _resolve = null;
@@ -63,11 +69,17 @@ exports.createSafeReadableStream = function createSafeReadableStream({
         logger.verbose(`${logPrefix} data is empty string.`);
       }
 
+      _totalPushCnt++;
+
+      if (logger && ((_totalPushCnt % traceInterval) === 0)) {
+        logger.verbose(`_totalPushCnt: ${_totalPushCnt}`);
+      }
+
       // Will lead to call read() again if not null.
       if (!this.push(data)) {
-        if (logger) {
-          const msg = `${logPrefix} push returned false, data is null: ${data === null}`;
-          logger.info(msg);
+        if (logger && data !== null) {
+          const msg = `${logPrefix} push returned false, data is not null, _totalPushCnt: ${_totalPushCnt}`;
+          logger.verbose(msg);
         }
         return;
       }
