@@ -12,7 +12,7 @@ const quotedErrorFieldName = `"${errorFieldName}"`;
 const logPrefix = 'safe-readable-stream:';
 
 /**
- * Wraps the stream.Readable to allow safe pushing data into it.
+ * Wraps the stream.Readable to allow safe data pushing into it.
  * @param {Function ?} done - callback from HAPI.
  * @param {Object} logger - winston-like logger.
  * @return {Object} - Wrapper for stream.Readable.

@@ -51,4 +51,4 @@ response.on('data', (data) => {
 
 * [API Reference](https://github.com/Dzenly/safe-readable-stream/tree/master/index.js).
 
-* [Examples](https://github.com/Dzenly/safe-readable-stream/tree/master/tests).
+* [Examples](https://github.com/Dzenly/safe-readable-stream/tree/master/__tia-tests__).
