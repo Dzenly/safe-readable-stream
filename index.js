@@ -118,7 +118,7 @@ exports.createSafeReadableStream = function createSafeReadableStream({
 
     /**
      * Sends the 'data' to the underlying stream. null will lead to finish() call.
-     * @param {*} data - The data. Can be JSON.stringify - compatible.
+     * @param {*} data - The data. For objectMode must be JSON.stringify - compatible.
      * @return {Promise<undefined>>}
      */
     push(data) {
@@ -132,7 +132,8 @@ exports.createSafeReadableStream = function createSafeReadableStream({
      * Sends the array of data to the underlying stream.
      * Note: if some array item is null - the finish() will be called at that time,
      * and all remaining data will not be send to the underlying stream.
-     * @param {Array<*>} dataArr
+     * @param {Array<*>} dataArr - Array of data.
+     * For objectMode, array items must be JSON.stringify - compatible.
      * @return {Promise<undefined>}
      */
     pushArray(dataArr) {
@@ -160,16 +161,17 @@ exports.createSafeReadableStream = function createSafeReadableStream({
 
     /**
      * Schedules to send null to the underlying stream.
-     * @return {*|Promise<undefined>}
+     * @return {Promise<undefined>}
      */
     finish() {
       return this.pushArray([null]);
     },
 
     /**
-     * Sends the user error to the stream. Call stack is printed to logger, but is not send to the stream.
-     * @param err
-     * * @return {*|Promise<undefined>}
+     * Sends the user error to the stream.
+     * Call stack is printed to logger, but is not sent to the stream.
+     * @param {String} err
+     * * @return {Promise<undefined>}
      */
     async error(err = '') {
       await this.pushArray([{ [errorFieldName]: err.toString() }, null]);
@@ -197,7 +199,7 @@ exports.createSafeReadableStream = function createSafeReadableStream({
 };
 
 /**
- * Looks up for user sent error in streamData.
+ * Looks up for user sent error (by `error(msg)`) in streamData.
  * @param {Buffer} streamData - Argument of handler of stream 'data' event.
  * @return {String | null} - Error message or null.
  */
