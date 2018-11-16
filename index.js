@@ -44,7 +44,7 @@ exports.createSafeReadableStream = function createSafeReadableStream({
     _dataIndex = 0;
     const _tmpResolve = _resolve; // A bit of paranoid checking.
     _resolve = null;
-    _tmpResolve();
+    if (_tmpResolve) _tmpResolve(); // Someone could use getStream().push().
   }
 
   function debugAllowPush() {
