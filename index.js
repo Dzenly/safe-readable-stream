@@ -93,7 +93,7 @@ exports.createSafeReadableStream = function createSafeReadableStream({
 
   _rStream.on('end', () => {
     if (logger) {
-      logger.verbose(`${logPrefix} on end`);
+      logger.verbose(`${logPrefix} on end, _totalPushCnt: ${_totalPushCnt} (including last null)`);
     }
     _ended = true;
     allowPush(); // If there was 'end' event, the read callback will not be called.

@@ -10,7 +10,7 @@ OK: first parameter for done(): null
 ,
 {"safeReadableStreamError":"Error: My error"}
 Checked error string: Error: My error
-[GT] verbose: safe-readable-stream: on end
+[GT] verbose: safe-readable-stream: on end, _totalPushCnt: 4 (including last null)
 
 ]
 

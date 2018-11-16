@@ -25,7 +25,7 @@ E
 F
 [GT] verbose: safe-readable-stream: data is empty string.
 
-[GT] verbose: safe-readable-stream: on end
+[GT] verbose: safe-readable-stream: on end, _totalPushCnt: 12 (including last null)
 End Event.
 =================
 Pass: 0, Fail: 0

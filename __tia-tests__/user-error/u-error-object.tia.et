@@ -10,7 +10,7 @@ A
   safeReadableStreamError: 'Error: My error'
 }
 Checked error string: Error: My error
-[GT] verbose: safe-readable-stream: on end
+[GT] verbose: safe-readable-stream: on end, _totalPushCnt: 4 (including last null)
 End Event.
 [GT] error: safe-readable-stream: Error: Error: My error. Stream is stopped.
 [GT] error: safe-readable-stream:
