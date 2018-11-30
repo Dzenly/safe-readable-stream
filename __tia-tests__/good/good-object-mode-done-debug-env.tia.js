@@ -15,7 +15,7 @@ module.exports = async function test({ t, l }, inner, a) {
     gT.logUtils.rStreamToLog(stream.pipe(JSONStream.parse('*')));
   }
 
-  const outStream = rStream.createSafeReadableStream({ logger, done });
+  const outStream = rStream.createSafeReadableStream({ logger, done, useJSONStream: true });
 
   await outStream.push('A\n');
   await outStream.push('B');

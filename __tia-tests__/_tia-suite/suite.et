@@ -12,6 +12,7 @@
 | "good", dif: 0, fail: 0, edif: 0, skip: 0, ""
 | | "good-buffer-mode-done.tia.js", OK, fail: 0, Pass: 1, "Good waits, buffer mode, done(), release"
 | | "good-object-mode-done-debug-env.tia.js", OK, fail: 0, Pass: 1, "Good waits, object mode, done, debug ()"
+| | "good-object-mode-done-no-jsonstream.tia.js", OK, fail: 0, Pass: 1, "Good waits, object mode, done, no JSONStream"
 | | "good-object-mode-done.tia.js", OK, fail: 0, Pass: 1, "Good waits, object mode, done, release"
 | | "good-object-mode.tia.js", OK, fail: 0, pass: 0, "Good waits, object mode, no done, release ()"
 | "user-error", dif: 0, fail: 0, edif: 0, skip: 0, ""

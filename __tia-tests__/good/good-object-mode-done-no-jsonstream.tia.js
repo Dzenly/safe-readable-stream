@@ -3,17 +3,17 @@
 const JSONStream = require('JSONStream');
 
 module.exports = async function test({ t, l }, inner, a) {
-  t.setTitle('Good waits, object mode, done, release');
+  t.setTitle('Good waits, object mode, done, no JSONStream');
 
   const rStream = require('../../index');
   const logger = gT.logUtils.winstonMock('[GT] ');
 
   function done(err, stream) {
     a.value(err, null, 'first parameter for done()');
-    gT.logUtils.rStreamToLog(stream.pipe(JSONStream.parse('*')));
+    gT.logUtils.rStreamToLog(stream);
   }
 
-  const outStream = rStream.createSafeReadableStream({ logger, done, useJSONStream: true });
+  const outStream = rStream.createSafeReadableStream({ logger, done, useJSONStream: false });
 
   await outStream.push('A\n');
   await outStream.push('B');

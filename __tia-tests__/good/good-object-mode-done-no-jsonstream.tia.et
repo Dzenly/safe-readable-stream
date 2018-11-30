@@ -1,0 +1,32 @@
+=================
+Title: Good waits, object mode, done, no JSONStream
+OK: first parameter for done(): null
+A
+
+B
+{
+  a: 'a',
+  b: 18
+}
+C
+D
+E
+{
+  a: 'a',
+  b: 18
+}
+{
+  c: 'a',
+  d: 18
+}
+{
+  e: 'a',
+  f: 18
+}
+F
+[GT] verbose: safe-readable-stream: data is empty string.
+
+[GT] verbose: safe-readable-stream: on end, _totalPushCnt: 12 (including last null)
+End Event.
+=================
+Pass: 1, Fail: 0

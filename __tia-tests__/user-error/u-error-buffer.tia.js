@@ -11,7 +11,7 @@ module.exports = async function test({ t, l }, inner, a) {
     gT.logUtils.rStreamToLog(stream);
   }
 
-  const outStream = rStream.createSafeReadableStream({ logger, done });
+  const outStream = rStream.createSafeReadableStream({ logger, done, objectMode: false });
 
   outStream.getStream().on('data', (data) => {
     const errStr = rStream.checkErrorString(data);
@@ -21,6 +21,6 @@ module.exports = async function test({ t, l }, inner, a) {
   });
 
   await outStream.push('A');
-  await outStream.push({ a: 'a', b: 18 });
+  await outStream.push('B');
   await outStream.error(new Error('My error'));
 };

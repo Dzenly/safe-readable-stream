@@ -12,8 +12,12 @@ exports.errorFieldName = 'safeReadableStreamError';
 
 /**
  * Wraps the stream.Readable to allow safe data pushing into it.
- * @param {Function ?} done - callback from HAPI.
  * @param {Object} logger - winston-like logger.
+ * @param {Function ?} done - callback from HAPI.
+ * @param {Boolean} [objectMode = true]. objectMode for stream.
+ * @param {Boolean} [useJSONStream = false] - use JSONStream module.
+ * This option is work when 'done' is present and 'objectMode' is true.
+ * Note: I think that JSONStream is buggy module, so be careful.
  * @param {Number} [traceInterval = 100] - how often
  * to do logger.verbose for pushed objects count.
  * Say, if 10, then each 10-th push will be logged.
@@ -23,6 +27,7 @@ exports.createSafeReadableStream = function createSafeReadableStream({
   logger,
   objectMode = true,
   done,
+  useJSONStream = false,
   traceInterval = 100,
 } = {}) {
   let _ended = false;
@@ -108,7 +113,7 @@ exports.createSafeReadableStream = function createSafeReadableStream({
   });
 
   if (done) {
-    if (objectMode) {
+    if (objectMode && useJSONStream) {
       done(null, _rStream.pipe(JSONStream.stringify()));
     } else {
       done(null, _rStream);
@@ -185,7 +190,12 @@ exports.createSafeReadableStream = function createSafeReadableStream({
      * * @return {Promise<undefined>}
      */
     async error(err = '') {
-      await this.pushArray([{ [exports.errorFieldName]: err.toString() }, null]);
+      const errorObject = {
+        [exports.errorFieldName]: err.toString(),
+      };
+      const error = objectMode ? errorObject : JSON.stringify(errorObject);
+
+      await this.pushArray([error, null]);
       if (logger) logger.error(`${logPrefix} Error: ${err}. Stream is stopped.`);
       if (err.stack) {
         if (logger) logger.error(logPrefix, 'Err stack: ', err.stack);
@@ -227,16 +237,14 @@ exports.checkErrorString = function checkErrorString(streamData, errFieldName = 
     return null;
   }
 
-  if (typeof streamData === 'object') {
-    return streamData[errFieldName];
-  }
-
   let str;
 
   if (Buffer.isBuffer(streamData)) {
     str = streamData.toString('utf8');
   } else if (typeof streamData === 'string') {
     str = streamData;
+  } else if (typeof streamData === 'object') {
+    return streamData[errFieldName];
   } else {
     return null;
   }
