@@ -1,22 +1,18 @@
 'use strict';
 
 module.exports = async function test({ t, l }, inner, a) {
-  t.setTitle('Good , buffer mode, done(), stringify.');
+  t.setTitle('Bad, object mode, send undefined, array');
 
   const rStream = require('../../index');
   const logger = gT.logUtils.winstonMock('[GT] ');
 
-  function done(err, stream) {
-    a.value(err, null, 'first parameter for done()');
-    gT.logUtils.rStreamToLog(stream);
-  }
-
   const outStream = rStream.createSafeReadableStream({
     logger,
-    done,
-    objectMode: false,
+    useJSONStream: false,
+    objectMode: true,
   });
+  gT.logUtils.rStreamToLog(outStream.getStream());
 
-  await outStream.push({ a: 3, b: 'asdf' });
+  await outStream.pushArray(['A', undefined]);
   await outStream.finish();
 };

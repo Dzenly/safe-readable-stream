@@ -1,0 +1,6 @@
+=================
+Title: Bad, object mode, send undefined, array
+EXC: Exception in runner:  Error: Don`t push undefined.
+
+=================
+Pass: 0, Fail: 1

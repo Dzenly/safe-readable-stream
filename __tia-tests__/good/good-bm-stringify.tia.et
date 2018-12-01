@@ -1,0 +1,9 @@
+=================
+Title: Good, buffer mode, done(), stringify
+OK: first parameter for done(): null
+A
+{"a":5,"b":"qwer"}
+[GT] verbose: safe-readable-stream: on end, _totalPushCnt: 3 (including last null)
+End Event.
+=================
+Pass: 1, Fail: 0

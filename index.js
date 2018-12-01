@@ -21,6 +21,8 @@ exports.errorFieldName = 'safeReadableStreamError';
  * @param {Number} [traceInterval = 100] - how often
  * to do logger.verbose for pushed objects count.
  * Say, if 10, then each 10-th push will be logged.
+ * @param {Boolean} [stringify = true] - if 'objectMode' is false and
+ * pushed data is object (and not null) - use JSON.stringify() to push it.
  * @return {Object} - Wrapper for stream.Readable.
  */
 exports.createSafeReadableStream = function createSafeReadableStream({
@@ -29,6 +31,7 @@ exports.createSafeReadableStream = function createSafeReadableStream({
   done,
   useJSONStream = false,
   traceInterval = 100,
+  stringify = true,
 } = {}) {
   let _ended = false;
   let _closed = false;
@@ -165,6 +168,19 @@ exports.createSafeReadableStream = function createSafeReadableStream({
       if (!dataArr.length) {
         return Promise.reject(new Error('You can not push empty array.'));
       }
+      if (dataArr.includes(undefined)) {
+        return Promise.reject(new Error('Don`t push undefined.'));
+      }
+
+      if (!objectMode && stringify) {
+        // eslint-disable-next-line no-param-reassign
+        dataArr = dataArr.map((item) => {
+          if (typeof item === 'object' && item !== null) {
+            return JSON.stringify(item);
+          }
+          return item;
+        });
+      }
 
       return new Promise(((resolve, reject) => {
         _dataArr = dataArr;
@@ -189,7 +205,11 @@ exports.createSafeReadableStream = function createSafeReadableStream({
      * @param {String} err
      * * @return {Promise<undefined>}
      */
-    async error(err = '') {
+    async error(err) {
+      if (err.length > maxErrorMessageLength) {
+        throw new Error('Too big error length.');
+      }
+
       const errorObject = {
         [exports.errorFieldName]: err.toString(),
       };
