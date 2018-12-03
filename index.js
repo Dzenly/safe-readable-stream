@@ -308,8 +308,8 @@ exports.bufToObjStream = function bufToObjStream(logger) {
       try {
         for (let i = 0; i < arr.length - 1; i++) {
           const res = this.push(JSON.parse(arr[i]));
-          if (!res) {
-            log.info('push returned false !!!');
+          if (!res && logger) {
+            logger.info('push returned false !!!');
           }
 
           if (logger) {
