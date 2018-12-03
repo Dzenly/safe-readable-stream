@@ -1,6 +1,6 @@
 {
   "name": "safe-readable-stream",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Wrapper for reliable work for stream.Readable",
   "main": "index.js",
   "scripts": {
