@@ -307,7 +307,11 @@ exports.bufToObjStream = function bufToObjStream(logger) {
       const arr = str.split('\n');
       try {
         for (let i = 0; i < arr.length - 1; i++) {
-          this.push(JSON.parse(arr[i]));
+          const res = this.push(JSON.parse(arr[i]));
+          if (!res) {
+            logger.error('push returned false !!!');
+          }
+
           if (logger) {
             logger.verbose(`Sent object #${sentObjCount}`);
           }
