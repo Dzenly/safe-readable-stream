@@ -309,7 +309,7 @@ exports.bufToObjStream = function bufToObjStream(logger) {
         for (let i = 0; i < arr.length - 1; i++) {
           const res = this.push(JSON.parse(arr[i]));
           if (!res) {
-            logger.error('push returned false !!!');
+            log.info('push returned false !!!');
           }
 
           if (logger) {
@@ -321,10 +321,10 @@ exports.bufToObjStream = function bufToObjStream(logger) {
         if (logger) {
           logger.error(err);
         }
-        callback(err);
+        return callback(err);
       }
       remainder = arr.pop();
-      callback();
+      return callback();
     },
   });
 };
