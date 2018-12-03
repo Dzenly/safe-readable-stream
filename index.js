@@ -176,7 +176,7 @@ exports.createSafeReadableStream = function createSafeReadableStream({
         // eslint-disable-next-line no-param-reassign
         dataArr = dataArr.map((item) => {
           if (typeof item === 'object' && item !== null) {
-            return JSON.stringify(item);
+            return `${JSON.stringify(item)}\n`; // Newline delimited objects.
           }
           return item;
         });
@@ -280,4 +280,47 @@ exports.checkErrorString = function checkErrorString(streamData, errFieldName = 
   begin = str.indexOf('"', end + 1);
   end = str.lastIndexOf('"');
   return str.slice(begin + 1, end);
+};
+
+
+/**
+ * Transforms newline separated json stream into object stream.
+ * @param {Object} [logger] - Winston - like logger.
+ * @returns {stream.Transform} - object stream.
+ */
+exports.bufToObjStream = function bufToObjStream(logger) {
+  let remainder = '';
+  let receivedChunkCount = 0;
+  let sentObjCount = 0;
+  return new stream.Transform({
+    readableObjectMode: true,
+    writableObjectMode: false,
+
+    transform(chunk, encoding, callback) {
+      ++receivedChunkCount;
+      chunk = chunk.toString('utf8'); // eslint-disable-line no-param-reassign
+      if (logger) {
+        logger.verbose(`Received chunk #${receivedChunkCount} str len: ${chunk.length}`);
+      }
+
+      const str = remainder + chunk;
+      const arr = str.split('\n');
+      try {
+        for (let i = 0; i < arr.length - 1; i++) {
+          this.push(JSON.parse(arr[i]));
+          ++sentObjCount;
+          if (logger) {
+            logger.verbose(`Sent object #${sentObjCount}`);
+          }
+        }
+      } catch (err) {
+        if (logger) {
+          logger.error(err);
+        }
+        callback(err);
+      }
+      remainder = arr.pop();
+      callback();
+    },
+  });
 };

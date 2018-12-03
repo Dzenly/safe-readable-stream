@@ -1,0 +1,11 @@
+=================
+Title: Good, buf-to-obj-stream, small chunks.
+[GT] verbose: Received chunk #1 str len: 250428002
+Received chunk index: 0
+[GT] verbose: Sent object #1
+[GT] verbose: Received chunk #2 str len: 250428002
+Received chunk index: 0
+[GT] verbose: Sent object #2
+END
+=================
+Pass: 0, Fail: 0
