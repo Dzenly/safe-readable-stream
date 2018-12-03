@@ -297,21 +297,21 @@ exports.bufToObjStream = function bufToObjStream(logger) {
     writableObjectMode: false,
 
     transform(chunk, encoding, callback) {
-      ++receivedChunkCount;
       chunk = chunk.toString('utf8'); // eslint-disable-line no-param-reassign
       if (logger) {
         logger.verbose(`Received chunk #${receivedChunkCount} str len: ${chunk.length}`);
       }
+      ++receivedChunkCount;
 
       const str = remainder + chunk;
       const arr = str.split('\n');
       try {
         for (let i = 0; i < arr.length - 1; i++) {
           this.push(JSON.parse(arr[i]));
-          ++sentObjCount;
           if (logger) {
             logger.verbose(`Sent object #${sentObjCount}`);
           }
+          ++sentObjCount;
         }
       } catch (err) {
         if (logger) {

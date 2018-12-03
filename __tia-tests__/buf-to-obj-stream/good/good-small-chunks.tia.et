@@ -1,33 +1,33 @@
 =================
 Title: Good, buf-to-obj-stream, small chunks.
-[GT] verbose: Received chunk #1 str len: 1
-[GT] verbose: Received chunk #2 str len: 2
-[GT] verbose: Received chunk #3 str len: 3
+[GT] verbose: Received chunk #0 str len: 1
+[GT] verbose: Received chunk #1 str len: 2
+[GT] verbose: Received chunk #2 str len: 3
+[GT] verbose: Received chunk #3 str len: 1
 [GT] verbose: Received chunk #4 str len: 1
-[GT] verbose: Received chunk #5 str len: 1
-[GT] verbose: Received chunk #6 str len: 3
+[GT] verbose: Received chunk #5 str len: 3
+[GT] verbose: Received chunk #6 str len: 1
 [GT] verbose: Received chunk #7 str len: 1
-[GT] verbose: Received chunk #8 str len: 1
 {
   val: true
 }
-[GT] verbose: Sent object #1
-[GT] verbose: Received chunk #9 str len: 3
-[GT] verbose: Received chunk #10 str len: 8
-[GT] verbose: Received chunk #11 str len: 1
-[GT] verbose: Received chunk #12 str len: 2
+[GT] verbose: Sent object #0
+[GT] verbose: Received chunk #8 str len: 3
+[GT] verbose: Received chunk #9 str len: 8
+[GT] verbose: Received chunk #10 str len: 1
+[GT] verbose: Received chunk #11 str len: 2
 {
   a: 'aaaa'
 }
-[GT] verbose: Sent object #2
-[GT] verbose: Received chunk #13 str len: 8
-[GT] verbose: Received chunk #14 str len: 7
+[GT] verbose: Sent object #1
+[GT] verbose: Received chunk #12 str len: 8
+[GT] verbose: Received chunk #13 str len: 7
 {
   b: {
     c: 'd'
   }
 }
-[GT] verbose: Sent object #3
+[GT] verbose: Sent object #2
 END
 =================
 Pass: 0, Fail: 0
