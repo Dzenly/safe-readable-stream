@@ -213,7 +213,7 @@ exports.createSafeReadableStream = function createSafeReadableStream({
       const errorObject = {
         [exports.errorFieldName]: err.toString(),
       };
-      const error = objectMode ? errorObject : JSON.stringify(errorObject);
+      const error = objectMode ? errorObject : (JSON.stringify(errorObject) + '\n');
 
       await this.pushArray([error, null]);
       if (logger) logger.error(`${logPrefix} Error: ${err}. Stream is stopped.`);
